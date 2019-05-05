@@ -1,0 +1,46 @@
+#login-screen {
+    background-image: url("../images/beverages-break-caffeine-630831.jpg");
+    background-repeat: no-repeat;
+    background-size: contain;
+    display: flex;
+    justify-content: flex-end;
+    height: 100vh;
+}
+
+#login-screen #login-screen-content{
+    background-color: white;
+    width: 500px;
+    height: 100vh;
+}
+
+#login-screen #login-screen-content #logo{
+    margin: 40px;
+}
+
+#login-screen #login-screen-content #logo h1{
+    text-align: center;
+    font-size: 60px;
+}
+
+#login-screen #login-screen-content #login-form{
+    padding: 30px;
+}
+
+#login-screen #login-screen-content #login-form #name-wrapper{
+    display: flex;
+    justify-content: space-between;
+}
+
+#login-screen #login-screen-content #login-form #form-footer{
+    margin: 10px;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+}
+#login-screen #login-screen-content #login-form #form-footer #create-account-button{
+    cursor: pointer;
+}
+
+#login-screen #login-screen-content #login-form #form-footer #create-account-button:hover{
+    text-decoration: underline;
+}
