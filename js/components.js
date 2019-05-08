@@ -1,7 +1,8 @@
 const components = {
     introduction: `
     <div>
-        Hello World!
+        <div id="display-name"></div>
+        <div id="email-name"></div>
     </div>
     `,
 

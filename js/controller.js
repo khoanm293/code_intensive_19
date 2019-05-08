@@ -39,6 +39,11 @@ controller.validateRegisterForm = (registerInfor) =>{
     }else{
         view.setMessage("confirmPassword-error-message", "");
     }
+
+    //call model to create user
+    if(firstName && lastName && email && password && emailRegex.test(email) && password === confirmPassword){
+        model.createAccount(registerInfor);
+    }
 }
 controller.validateLoginForm = (loginInfor) => {
 
@@ -57,6 +62,11 @@ controller.validateLoginForm = (loginInfor) => {
         view.setMessage("password-error-message", "Password should be greater than 6 letters");
     }else{
         view.setMessage("password-error-message", "");
+    }
+
+    //call model to login user
+    if(email && password && emailRegex.test(email)){
+        model.login(loginInfor);
     }
 
 }

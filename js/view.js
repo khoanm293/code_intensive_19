@@ -9,9 +9,11 @@ view.setActiveScreen = (componentName) => {
     const app = document.getElementById("app");
     switch(componentName){
         case 'introduction':
-            app.innerHTML = components.introduction;
             if(app){
                 app.innerHTML = components.introduction;
+                document.getElementById("display-name").innerText = model.loginUser.displayName;
+                document.getElementById("email-name").innerText = model.loginUser.email;
+
             }
             break;
         case 'register':
