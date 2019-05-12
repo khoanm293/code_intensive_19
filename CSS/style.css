@@ -1,3 +1,12 @@
+* {
+  font-size: 14px;
+  font-family: 'Open Sans', sans-serif;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
 .input{
   width: 100%;
   border: 1px solid #cccccc;
@@ -19,4 +28,41 @@
   color: #cccccc;
   padding: 10px 20px 10px 20px;
   font-size: 15px;
+}
+
+.message-content{
+  max-width: 40%;
+  margin: 5px;
+  clear: both;
+}
+
+.sender{
+  font-size: 12px;
+}
+
+.content{
+  padding: 5px;
+  border-radius: 5px;
+  word-wrap: break-word;
+  white-space: pre-wrap;
+}
+
+.friend-message{
+  float: left;
+  text-align: left;
+}
+
+.my-message{
+  float: right;
+  text-align: right;
+}
+
+.friend-message .content{
+  background-color: #e9e9e9;
+  color: #000000;
+}
+
+.my-message .content{
+  background-color: #4482ff;
+  color: #ffffff;
 }

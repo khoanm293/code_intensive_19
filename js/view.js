@@ -5,15 +5,66 @@ view.setMessage = (elementID, message) => {
         element.innerText = message;
     }
 };
+
+view.sendMessage = (sender, message) => {
+    const messageContent = document.createElement("div");
+    messageContent.classList.add("message-content");
+    if(sender){
+        messageContent.classList.add("friend-message");
+    }else{
+        messageContent.classList.add("my-message");
+    }
+    const senderElement = document.createElement("div");
+    senderElement.classList.add("sender");
+    if (sender) {
+      senderElement.innerText = sender;
+    }
+
+    const content = document.createElement("div");
+    content.classList.add("content");
+    content.innerText = message;
+
+    messageContent.appendChild(senderElement);
+    messageContent.appendChild(content);
+
+    const messageContainer = document.getElementById("message-container");
+    if(messageContainer){
+        messageContainer.appendChild(messageContent);
+    }
+}
+
 view.setActiveScreen = (componentName) => {
     const app = document.getElementById("app");
     switch(componentName){
+        case 'chat':
+            if(app){
+                app.innerHTML = components.chat;
+                // listen submit event
+                const messageForm = document.getElementById('input-message');
+                if (messageForm) {
+                const handleMessageSubmit = (event) => {
+                    // get value from input
+                    event.preventDefault();
+                    const message = messageForm.message.value;
+
+                    // validate messageContent (not null)
+                    if (message) {
+                    view.sendMessage('', message);
+                    view.sendMessage('Chat bot', message);
+
+                    // remove old message from input
+                    messageForm.message.value = '';
+                    }
+                };
+                messageForm.addEventListener("submit", handleMessageSubmit);
+                }
+            }
+            break;
         case 'introduction':
             if(app){
                 app.innerHTML = components.introduction;
                 document.getElementById("display-name").innerText = model.loginUser.displayName;
                 document.getElementById("email-name").innerText = model.loginUser.email;
-
             }
             break;
         case 'register':

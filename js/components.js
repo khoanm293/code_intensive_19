@@ -1,4 +1,26 @@
 const components = {
+    chat:`
+    <div id="chat-screen">
+        <div id="header">Teckids Chat</div>
+        <div id="chat-container">
+            <div id="conversation-name">Teckids Chat</div>
+            <div id="message-container">
+            </div>
+            <form id="input-message">
+                <input id="message" type="text" placeholder="Enter your message..." name="Message">
+                <input id="submit" type="submit" value="Send">
+            </form>
+        </div>
+    </div>
+    `,
+
+    message:`
+    <div id="message-content" class="message-content">
+        <div id="sender" class="sender"></div>
+        <div id="content" class="content"></div>
+    </div>
+    `,
+
     introduction: `
     <div>
         <div id="display-name"></div>

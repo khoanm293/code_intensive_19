@@ -25,11 +25,10 @@ model.login = async (loginInfor) => {
                 displayName: loginResult.user.displayName,
                 email: loginResult.user.email,
             };
-            view.setActiveScreen("introduction");
+            view.setActiveScreen("chat");
         }else{
             //email is not verified
             view.setMessage("email-error-message", "Email is not verified");
-
         }
     } catch (error) {
         console.log(error);
