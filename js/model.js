@@ -1,6 +1,56 @@
 const model = {};
 
 model.loginUser = undefined;
+model.activeConversation = undefined;
+
+const handleDocumentChange = (doc) => {
+    const conversationNewData = doc.data();
+    if(model.activeConversation){
+        //render last message
+        const lastMessage = conversationNewData.message[conversationNewData.message.length-1];
+        const isOwnMessage = lastMessage.user === model.loginUser.email;
+        if(isOwnMessage){
+            view.sendMessage("",lastMessage.content);
+        }else{
+            view.sendMessage(lastMessage.user,lastMessage.content);
+        }
+    }else{
+        //load message and display
+        model.activeConversation = conversationNewData;
+        for(let i=0; i<conversationNewData.message.length; i += 1){
+            const message = conversationNewData.message[i];
+            const isOwnMessage = message.user === model.loginUser.email;
+            if(isOwnMessage){
+                view.sendMessage("",message.content);
+            }else{
+                view.sendMessage(message.user,message.content);
+            }
+        }
+    }
+}
+
+model.loadConversations = () => {
+    const db = firebase.firestore();
+    //get data, display message
+    db.collection("conversations")
+    .doc("oaiS5biyGK6vI0xvXiHn").onSnapshot(handleDocumentChange);
+};
+
+model.saveMessage = (messageContent) => {
+    if(messageContent){
+        const newMessageObj = {
+            content: messageContent,
+            user: model.loginUser.email,
+            createdAt: new Date(),
+        };
+        const db = firebase.firestore();
+        db.collection("conversations")
+        .doc("oaiS5biyGK6vI0xvXiHn")
+        .update({
+            message: firebase.firestore.FieldValue.arrayUnion(newMessageObj),
+        });
+    }
+};
 
 model.createAccount = async (registerInfor) => {
     try {
