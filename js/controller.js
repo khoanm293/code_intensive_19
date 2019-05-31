@@ -70,3 +70,43 @@ controller.validateLoginForm = (loginInfor) => {
     }
 
 }
+
+controller.validateCreateConversation = (conversationInfor) => {
+    const {conversationName, friendEmail} = conversationInfor;
+    //validate input email
+    const emailRegex = /^[a-z][a-z0-9_\.]{5,32}@[a-z0-9]{2,}(\.[a-z0-9]{2,4}){1,2}$/;
+    if(conversationName){
+        view.setMessage("conversation-name-error-message", "");
+    }else{
+        view.setMessage("conversation-name-error-message", "Please input conversation name");
+    }
+
+    if(!friendEmail){
+        view.setMessage("friend-email-error-message", "Please input your friend email");
+    }else if(!emailRegex.test(friendEmail)){
+        view.setMessage("friend-email-error-message", "Your friend email is invalid");
+    }else{
+        view.setMessage("friend-email-error-message", "");
+    }
+
+    if(conversationName && friendEmail && emailRegex.test(friendEmail)){
+        model.createNewConversation(conversationInfor);
+    }
+}
+
+controller.validateAddMemberForm = (memberEmail) => {
+    const emailRegex = /^[a-z][a-z0-9_\.]{5,32}@[a-z0-9]{2,}(\.[a-z0-9]{2,4}){1,2}$/;
+    if(!memberEmail){
+        view.setMessage("member-error-message", "Please input email");
+    }else if(!emailRegex.test(memberEmail)){
+        view.setMessage("member-error-message", "Invalid email");
+    }else if(model.activeConversation.users.includes(memberEmail)){
+        view.setMessage("member-error-message", "Member already exist in this conversation");
+    }else{
+        view.setMessage("member-error-message", "");
+    }
+
+    if(memberEmail && emailRegex.test(memberEmail) && !model.activeConversation.users.includes(memberEmail)){
+        model.addConversationMember(memberEmail);
+    }
+}

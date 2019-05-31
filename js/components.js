@@ -1,16 +1,61 @@
 const components = {
+    create:`
+    <div id="create-conversation-screen">
+        <div id="header">Teckids Chat</div>
+        <div id="create-form-container">
+            <h2>Create new conversation</h2>
+            <form id="create-conversation-form">
+                <div class="input-wrapper">
+                    <input class="input" type="text" name="conversationName" placeholder="Conversation name">
+                    <div class="error-message" id="conversation-name-error-message"></div>
+                </div>
+                <div class="input-wrapper">
+                    <input class="input" type="text" name="friendEmail" placeholder="Your friend's email">
+                    <div class="error-message" id="friend-email-error-message"></div>
+                </div>
+                <div id="button-group">
+                    <input id="create-button" class="button" type="submit" value="Create conversation">
+                    <button id="cancel-create-conversation" class="secondary-button">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    `,
+
     chat:`
     <div id="chat-screen">
         <div id="header">Teckids Chat</div>
-        <div id="chat-container">
-            <div id="conversation-name">Teckids Chat</div>
-            <div id="message-container">
+        <div id="chat-parent">
+            <div id="conversation-list">
+                <div id="create-conversation">
+                    <button id="create-conversation-button" class="button">+ Add new conversation</button>
+                </div>
+                <div id="conversation-container">
+                </div>
             </div>
-            <form id="input-message">
-                <input id="message" type="text" placeholder="Enter your message..." name="Message">
-                <input id="submit" type="submit" value="Send">
-            </form>
+            <div id="chat-container">
+                <div id="conversation-name">Teckids Chat</div>
+                    <div id="message-container">
+                </div>
+                <form id="input-message">
+                    <input id="message" type="text" placeholder="Enter your message..." name="Message">
+                    <input id="submit" type="submit" value="Send">
+                </form>
+            </div>
+            <div id="member-list">
+                <div id="member-container"></div>
+                <form id="add-member-form">
+                    <div class="input-wrapper">
+                        <input class="input" type="text" name="memberEmail" placeholder="Input new email..."/>
+                        <div class="error-message" id="member-error-message"></div>
+                    </div>
+                    <div id="button-wrapper">
+                        <input id="add-member-button" class="button" type="submit" value="Add member"/>
+                    </div>
+                </form>
+            </div>
         </div>
+
     </div>
     `,
 

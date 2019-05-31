@@ -30,6 +30,14 @@
   font-size: 15px;
 }
 
+.secondary-button{
+  border-radius: 5px;
+  background-color: #e9e9e9;
+  color: #cccccc;
+  padding: 10px 20px 10px 20px;
+  font-size: 15px;
+}
+
 .message-content{
   max-width: 40%;
   margin: 5px;
@@ -65,4 +73,28 @@
 .my-message .content{
   background-color: #4482ff;
   color: #ffffff;
+}
+
+.notification{
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: red;
+  margin-left: 12px;
+  text-align: left;
+}
+
+@media only screen and (max-width: 768px){
+  .conversation-item{
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    margin: 10px auto;
+    border: 1px solid black;
+    display: flex;
+    justify-content: center;
+    text-align: center;
+    font-size: 25px;
+  }
 }

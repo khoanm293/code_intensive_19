@@ -39,6 +39,46 @@ view.setActiveScreen = (componentName) => {
         case 'chat':
             if(app){
                 app.innerHTML = components.chat;
+
+                const addMemberForm = document.getElementById("add-member-form");
+                if(addMemberForm){
+                    addMemberForm.addEventListener("submit", (event)=>{
+                        event.preventDefault();
+                        const memberEmail = addMemberForm.memberEmail.value;
+                        controller.validateAddMemberForm(memberEmail);
+                    });
+                }
+
+                const mediaQueryResult = window.matchMedia("only screen and (max-width: 768px)");
+                mediaQueryResult.addListener((mediaInfor)=>{
+                    if(mediaInfor.matches){
+                        model.conversations.forEach((item)=>{
+                            const conversationItem = document.getElementById(item.id);
+                            if(conversationItem){
+                                const firstLetter = item.name.slice(0,1);
+                                conversationItem.innerText = firstLetter;
+                            }
+                        });
+                    }else{
+                        model.conversations.forEach((item)=>{
+                            const conversationItem = document.getElementById(item.id);
+                            if(conversationItem){
+                                const firstLetter = item.name;
+                                conversationItem.innerText = firstLetter;
+                            }
+                        });
+                    }
+                });
+                const messageInput = document.getElementById("message");
+                if(messageInput){
+                    messageInput.addEventListener("focus", () => {
+                        const activeConversationItem = document.getElementById(model.activeConversation.id);
+                        const activeConversationNoti = document.getElementById('conversation-${model.activeConversation.id}');
+                        if(activeConversationNoti){
+                            activeConversationItem.remove(activeConversationNoti);
+                        }
+                    });
+                }
                 // listen submit event
                 const messageForm = document.getElementById('input-message');
                 if (messageForm) {
@@ -60,6 +100,15 @@ view.setActiveScreen = (componentName) => {
             }
             //load conversation, display old message
             model.loadConversations();
+            //listen create event
+            const createConversationButton = document.getElementById("create-conversation-button");
+            if(createConversationButton){
+                handleCreateClick = (_event) => {
+                    view.setActiveScreen("create");
+                }
+                createConversationButton.addEventListener("click", handleCreateClick);
+            }
+
             break;
         case 'introduction':
             if(app){
@@ -130,5 +179,126 @@ view.setActiveScreen = (componentName) => {
                 loginForm.addEventListener("submit", handleSubmit);
             }
             break;
+        case 'create':
+            if(app){
+                app.innerHTML = components.create;
+                const cancelCreateConversation = document.getElementById("cancel-create-conversation");
+                if(cancelCreateConversation){
+                    handleCancelClick = (_event) => {
+                        view.setActiveScreen("chat");
+                    }
+                    cancelCreateConversation.addEventListener("click", handleCancelClick);
+                }
+                const createButton = document.getElementById("create-button");
+                if(createButton){
+                    handleCreateConversationSubmit = () => {
+
+                    }
+                    createButton.addEventListener("submit", handleCreateConversationSubmit);
+                }
+
+                const createConversationForm = document.getElementById("create-conversation-form");
+                if(createConversationForm){
+                    handleCreateConversationFormSubmit = (event) => {
+                        event.preventDefault();
+                        const conversationName = createConversationForm.conversationName.value;
+                        const friendEmail = createConversationForm.friendEmail.value;
+                        const createConversationInfor = {
+                            conversationName,
+                            friendEmail,
+                        };
+                        controller.validateCreateConversation(createConversationInfor);
+                    }
+                    createConversationForm.addEventListener("submit", handleCreateConversationFormSubmit);
+                }
+            }
+    }
+};
+
+view.renderConversationItem = (conversationInfor) => {
+    const conversationItem = document.createElement("div");
+    conversationItem.innerText = conversationInfor.name;
+    conversationItem.classList.add("conversation-item");
+    conversationItem.id = conversationInfor.id;
+
+    if(conversationInfor.id === model.activeConversation.id){
+        conversationItem.classList.add("active-conversation");
+    }
+
+    changeActiveConversation = (_event) => {
+        const newConversationItem = document.getElementById(conversationInfor.id);
+        const newConversationNoti = document.getElementById('conversation-${conversationInfor.id}');
+        if(newConversationNoti){
+            newConversationItem.remove(newConversationNoti);
+        }
+        const oldConversationItem = document.getElementById(model.activeConversation.id);
+        if(oldConversationItem){
+            oldConversationItem.classList.remove("active-conversation");
+        }
+        if(newConversationItem){
+            newConversationItem.classList.add("active-conversation");
+        }
+        //update model.activeConversation
+        model.updateActiveConversation(conversationInfor);
+
+        const memberContainer = document.getElementById("member-container");
+        if(memberContainer){
+            memberContainer.innerText = "";
+            model.activeConversation.users.forEach((user) => {
+                const memberItem = document.createElement("div");
+                memberItem.innerText = `${user}`;
+                memberContainer.appendChild(memberItem);
+            });
+        }
+
+        const messageContainer = document.getElementById("message-container");
+        console.log(messageContainer);
+        if(messageContainer){
+            messageContainer.innerText = "";
+        }
+        model.activeConversation.messages.forEach((message) => {
+            if(message.user === model.loginUser.email){
+                view.sendMessage("", message.content);
+            }else{
+                view.sendMessage(message.user, message.content);
+            }
+        });
+    };
+    conversationItem.addEventListener("click", changeActiveConversation);
+
+    const conversationContainer = document.getElementById("conversation-container");
+    if(conversationContainer){
+        conversationContainer.appendChild(conversationItem);
+    }
+};
+
+view.addNotification = (conversationId) => {
+    const conversation = document.getElementById(conversationId);
+    if(conversation){
+        //create new element
+        const spanElement = document.createElement("span");
+        spanElement.id = 'conversation-${conversationId}';
+        spanElement.classList.add("notification");
+        conversation.appendChild(spanElement);
+    }
+};
+
+view.clearAddMemberConversation =() => {
+    const addMemberForm = document.getElementById("add-member-form");
+    const errorForm = document.getElementById("member-error-message");
+    if(errorForm){
+        errorForm.value = "";
+    }
+    if(addMemberForm){
+        addMemberForm.memberEmail.value = "";
+    }
+};
+
+view.addNewMember = (newMember)=>{
+    const memberContainer = document.getElementById("member-container");
+    if(memberContainer){
+        const memberItem = document.createElement("div");
+        memberItem.innerText = `${newMember}`;
+        memberContainer.appendChild(memberItem);
     }
 };

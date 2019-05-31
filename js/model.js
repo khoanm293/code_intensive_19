@@ -2,38 +2,109 @@ const model = {};
 
 model.loginUser = undefined;
 model.activeConversation = undefined;
-
-const handleDocumentChange = (doc) => {
-    const conversationNewData = doc.data();
-    if(model.activeConversation){
-        //render last message
-        const lastMessage = conversationNewData.message[conversationNewData.message.length-1];
-        const isOwnMessage = lastMessage.user === model.loginUser.email;
-        if(isOwnMessage){
-            view.sendMessage("",lastMessage.content);
-        }else{
-            view.sendMessage(lastMessage.user,lastMessage.content);
-        }
-    }else{
-        //load message and display
-        model.activeConversation = conversationNewData;
-        for(let i=0; i<conversationNewData.message.length; i += 1){
-            const message = conversationNewData.message[i];
-            const isOwnMessage = message.user === model.loginUser.email;
-            if(isOwnMessage){
-                view.sendMessage("",message.content);
-            }else{
-                view.sendMessage(message.user,message.content);
-            }
-        }
-    }
-}
+model.conversations = undefined;
 
 model.loadConversations = () => {
+    const handleCollectionChange = (querySnapshot) => {
+        if(!model.conversations){
+            const mediaQueryResult = window.matchMedia("only screen and (max-width: 768px)");
+            const conversations = [];
+            querySnapshot.forEach((doc)=>{
+                const docInfor = doc.data();
+                docInfor.id = doc.id;
+                conversations.push(docInfor);
+            });
+            model.conversations = conversations;
+            if(mediaQueryResult.matches){
+                model.conversations.forEach((item)=>{
+                    const conversationItem = document.getElementById(item.id);
+                    if(conversationItem){
+                        const firstLetter = item.name.slice(0,1);
+                        conversationItem.innerText = firstLetter;
+                    }
+                });
+            }else{
+                model.conversations.forEach((item)=>{
+                    const conversationItem = document.getElementById(item.id);
+                    if(conversationItem){
+                        const firstLetter = item.name;
+                        conversationItem.innerText = firstLetter;
+                    }
+                });
+            }
+            model.activeConversation = model.conversations[0];
+
+            //render conversation list
+            model.conversations.forEach((conversation) => {
+                view.renderConversationItem(conversation);
+            });
+            
+            const memberContainer = document.getElementById("member-container");
+            if(memberContainer){
+                memberContainer.innerText = "";
+                model.activeConversation.users.forEach((user) => {
+                    const memberItem = document.createElement("div");
+                    memberItem.innerText = `${user}`;
+                    memberContainer.appendChild(memberItem);
+                });
+            }
+
+            model.activeConversation.messages.forEach((message) => {
+                if(message.user===model.loginUser.email){
+                    view.sendMessage("", message.content);
+                }else{
+                    view.sendMessage(message.user, message.content);
+                }
+            });
+        }else{
+            const modifiedConversations = [];
+            querySnapshot.docChanges().forEach((docChange) => {
+                const conversation = docChange.doc.data();
+                conversation.id = docChange.doc.id;
+                modifiedConversations.push(conversation);
+            });
+            console.log(modifiedConversations);
+            modifiedConversations.forEach((modified) => {
+                let isNewConversation = true;
+                for(let i=0; i<model.conversations.length; i+=1){
+                    if(model.conversations[i].id === modified.id){
+                        if(modified.users.length === model.conversations[i].users.length){
+                            model.conversations[i] = modified;
+                            isNewConversation = false;
+                            const newMessage = modified.messages[modified.messages.length-1];
+                            if(newMessage.user!==model.loginUser.email){
+                                view.addNotification(modified.id);
+                            }
+                            if(modified.id === model.activeConversation.id){
+                                if(newMessage.user===model.loginUser.email){
+                                    view.sendMessage("", newMessage.content);
+                                }else{
+                                    view.sendMessage(newMessage.user, newMessage.content);
+                                }
+                            }
+                        }else{
+                            model.conversations[i] = modified;
+                            isNewConversation = false;
+                            const newUser = modified.users[modified.users.length-1];
+                            if(modified.id === model.activeConversation.id){
+                                view.addNewMember(newUser);
+                            }
+                            view.addNotification(modified.id);
+                        }
+                        break;
+                    }
+                }
+                if(isNewConversation){
+                    model.conversations.push(modified);
+                    view.addNotification(modifiedConversations.id);
+                }
+            });
+        }
+    }
+
     const db = firebase.firestore();
     //get data, display message
-    db.collection("conversations")
-    .doc("oaiS5biyGK6vI0xvXiHn").onSnapshot(handleDocumentChange);
+    db.collection("conversations").where("users", "array-contains", model.loginUser.email).onSnapshot(handleCollectionChange);
 };
 
 model.saveMessage = (messageContent) => {
@@ -45,9 +116,9 @@ model.saveMessage = (messageContent) => {
         };
         const db = firebase.firestore();
         db.collection("conversations")
-        .doc("oaiS5biyGK6vI0xvXiHn")
+        .doc(model.activeConversation.id)
         .update({
-            message: firebase.firestore.FieldValue.arrayUnion(newMessageObj),
+            messages: firebase.firestore.FieldValue.arrayUnion(newMessageObj),
         });
     }
 };
@@ -89,3 +160,32 @@ model.login = async (loginInfor) => {
         }
     }
 };
+
+model.clearActiveConversation = () => {
+    model.activeConversation = undefined;
+};
+
+model.createNewConversation = (conversationInfor) =>{
+    //build new conversation
+    const newConversation = {
+        name: conversationInfor.conversationName,
+        createdAt: new Date(),
+        messages: [],
+        users: [model.loginUser.email, conversationInfor.friendEmail],
+    };
+    const db = firebase.firestore();
+    db.collection("conversations").add(newConversation);
+    view.setActiveScreen("chat");
+};
+
+model.updateActiveConversation = (newActiveConversation) => {
+    model.activeConversation = newActiveConversation;
+};
+
+model.addConversationMember = (memberEmail) => {
+    const db = firebase.firestore();
+    db.collection("conversations").doc(model.activeConversation.id).update({
+        users: firebase.firestore.FieldValue.arrayUnion(memberEmail),
+    });
+    view.clearAddMemberConversation();
+}
